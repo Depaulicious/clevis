@@ -26,8 +26,10 @@ bin_PROGRAMS = \
 dist_bin_SCRIPTS = \
     clevis-encrypt-http \
     clevis-encrypt-tang \
+    clevis-encrypt-tpm2 \
     clevis-decrypt-http \
     clevis-decrypt-tang \
+    clevis-decrypt-tpm2 \
     clevis-bind-luks \
     clevis-decrypt \
     clevis

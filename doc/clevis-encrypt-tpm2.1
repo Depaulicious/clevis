@@ -1,0 +1,182 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CLEVIS\-ENCRYPT\-TPM2" "1" "July 2017" "" ""
+.
+.SH "NAME"
+\fBclevis\-encrypt\-tpm2\fR \- Encrypts using a TPM2\.0 chip binding policy
+.
+.SH "SYNOPSIS"
+\fBclevis encrypt tpm2\fR CONFIG \fIPT\fR JWE
+.
+.SH "OVERVIEW"
+The \fBclevis encrypt tpm2\fR command encrypts using a Trusted Platform Module 2\.0 (TPM2) chip\. Its only argument is the JSON configuration object\.
+.
+.P
+When using the tpm2 pin, we create a new, cryptographically\-strong, random key\. This key is encrypted using the TPM2 chip\. Then at decryption time, the key is decrypted again using the TPM2 chip\.
+.
+.IP "" 4
+.
+.nf
+
+$ clevis encrypt tpm2 \'{}\' < PT > JWE
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The pin has reasonable defaults for its configuration, but a different hierarchy, hash, and key algorithms can be choosen if the defaults used are not suitable:
+.
+.IP "" 4
+.
+.nf
+
+$ clevis encrypt tpm2 \'{"auth":"e","hash":"sha1","key":"rsa"}\' < PT > JWE
+.
+.fi
+.
+.IP "" 0
+.
+.P
+To decrypt the data, simply provide the ciphertext (JWE):
+.
+.IP "" 4
+.
+.nf
+
+$ clevis decrypt < JWE > PT
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Note that like other pins no configuration is used for decryption, this is due clevis storing the public and private keys to unseal the TPM2 encrypted object in the JWE so clevis can fetch that information from there\.
+.
+.P
+The pin also supports sealing data to a Platform Configuration Registers (PCR) state\. That way the data can only be unsealed if the PCRs hashes values match the policy used when sealing\.
+.
+.P
+For example, to seal the data to the PCR with index 0 and 1 for the SHA1 bank:
+.
+.IP "" 4
+.
+.nf
+
+$ clevis encrypt tpm2 \'{"pcr_bank":"sha1","pcr_ids":"0,1"}\' < PT > JWE
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The PCR digest values are looked up from the current hash values for the PCRs, but a digest can also be provided if the data needs to be sealed with values different to the current ones, by passing the binary hash encoded in base64:
+.
+.IP "" 4
+.
+.nf
+
+$ clevis encrypt tpm2 \'{"pcr_ids":"0","pcr_digest":"xy7J5svCtqlfM03d1lE5gdoA8MI"}\' < PT > JWE
+.
+.fi
+.
+.IP "" 0
+.
+.SH "CONFIG"
+This command uses the following configuration properties:
+.
+.IP "\(bu" 4
+\fBauth\fR (string) : Authentication hierarchy for the object created in the TPM (default: o)
+.
+.IP
+It must be one of the following:
+.
+.IP "\(bu" 4
+\fBe\fR (endorsement)
+.
+.IP "\(bu" 4
+\fBo\fR (owner)
+.
+.IP "\(bu" 4
+\fBp\fR (platform)
+.
+.IP "\(bu" 4
+\fBn\fR (null)
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+\fBhash\fR (string) : Hash algorithm used in the computation of the object name (default: sha256)
+.
+.IP
+It must be one of the following:
+.
+.IP "\(bu" 4
+\fBsha1\fR
+.
+.IP "\(bu" 4
+\fBsha256\fR
+.
+.IP "\(bu" 4
+\fBsha384\fR
+.
+.IP "\(bu" 4
+\fBsha512\fR
+.
+.IP "\(bu" 4
+\fBsm3_256\fR
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+\fBkey\fR (string) : Algorithm type for the generated key (default: ecc)
+.
+.IP
+It must be one of the following:
+.
+.IP "\(bu" 4
+\fBrsa\fR
+.
+.IP "\(bu" 4
+\fBkeyedhash\fR
+.
+.IP "\(bu" 4
+\fBecc\fR
+.
+.IP "\(bu" 4
+\fBsymcipher\fR
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+\fBpcr_bank\fR (string) : PCR algorithm bank to use for policy (default: sha1)
+.
+.IP
+It must be one of the following:
+.
+.IP "\(bu" 4
+\fBsha1\fR
+.
+.IP "\(bu" 4
+\fBsha256\fR
+.
+.IP "" 0
+
+.
+.IP "\(bu" 4
+\fBpcr_ids\fR (string) : Comma separated list of PCR used for policy\. If not present, no policy is used
+.
+.IP "\(bu" 4
+\fBpcr_digest\fR (string) : Binary PCR hashes encoded in base64\. If not present, the hash values are looked up
+.
+.IP "" 0
+.
+.SH "AUTHOR"
+Javier Martinez Canillas <javierm@redhat\.com>
+.
+.SH "SEE ALSO"
+\fBclevis\-decrypt\fR(1)

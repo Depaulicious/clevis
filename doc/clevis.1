@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "CLEVIS" "1" "June 2017" "" ""
+.TH "CLEVIS" "1" "July 2017" "" ""
 .
 .SH "NAME"
 \fBclevis\fR \- Automated decryption policy framework
@@ -80,6 +80,44 @@ $ clevis decrypt < JWE > PT
 .
 .P
 For more information, see \fBclevis\-encrypt\-tang\fR(1)\.
+.
+.SH "TPM2 BINDING"
+Clevis provides support to encrypt a key in a Trusted Platform Module 2\.0 (TPM2) chip\. The cryptographically\-strong, random key used for encryption is encrypted using the TPM2 chip, and then at decryption time is decrypted using the TPM2 to allow clevis to decrypt the secret stored in the JWE\.
+.
+.P
+Encrypting data using the tpm2 pin works the same than the pins mentioned above:
+.
+.IP "" 4
+.
+.nf
+
+$ clevis encrypt tpm2 \'{}\' < PT > JWE
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The pin has reasonable defaults for its configuration, but a different hierarchy, hash, and key algorithms can be choosen if the defaults used are not suitable\.
+.
+.P
+Decryption also works similar to other pins, only the JWE needs to be provided:
+.
+.IP "" 4
+.
+.nf
+
+$ clevis decrypt < JWE > PT
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Note that like other pins no configuration is used for decryption, this is due clevis storing the public and private keys to unseal the TPM2 encrypted object in the JWE so clevis can fetch that information from there\.
+.
+.P
+For more information see \fBclevis\-encrypt\-tpm2\fR(1)\.
 .
 .SH "SHAMIR\'S SECRET SHARING"
 Clevis provides a way to mix pins together to create sophisticated unlocking and high availability policies\. This is accomplished by using an algorithm called Shamir\'s Secret Sharing (SSS)\.
